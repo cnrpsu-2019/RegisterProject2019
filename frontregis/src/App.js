@@ -2,7 +2,6 @@ import React, { Component } from "react"
 import "bulma/css/bulma.min.css"
 import Menu from "./Component/Menu"
 import SubjectSearch from "./Component/SubjectSearch"
-// import Register from "./Component/Register"
 import RegisteredList from "./Component/RegisteredList"
 class App extends Component {
   constructor(props) {
@@ -13,7 +12,7 @@ class App extends Component {
       studentFaculty: "Engineering",
       studentCode: "5910110999",
       regisSubject: [],
-      allSubject: []
+      allSubject: [],
     }
     this.returnRegisPage = this.returnRegisPage.bind(this)
   }
@@ -24,14 +23,14 @@ class App extends Component {
 
   returnSubjectSearch = () => {
     this.setState({
-      renderPage: "search"
+      renderPage: "search",
     })
   }
 
-  returnRegisPage = subject => {
+  returnRegisPage = (subject) => {
     this.setState({
       renderPage: "register",
-      regisSubject: subject
+      regisSubject: subject,
     })
     console.log("Return Regis Subject")
     console.log(subject)
@@ -39,7 +38,7 @@ class App extends Component {
 
   returnRegistered = () => {
     this.setState({
-      renderPage: "registered"
+      renderPage: "registered",
     })
   }
 
@@ -65,14 +64,6 @@ class App extends Component {
           ระบบลงทะเบียนเรียน | Subject Registration System
         </h1>
         <hr />
-        {/* <div className="columns"> */}
-        {/* <div className="column is-3">
-            <Menu
-              name={this.state.studentName}
-              faculty={this.state.studentFaculty}
-            />
-          </div> */}
-        {/* <div className="column is-6"> */}
         <div className="tabs">
           <ul>
             <li
@@ -91,8 +82,6 @@ class App extends Component {
         </div>
         <div id="element">{elementFrontPage}</div>
       </div>
-      // </div>
-      // </div>
     )
   }
 }

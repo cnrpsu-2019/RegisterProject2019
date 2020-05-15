@@ -1,68 +1,59 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Registration Frontend
 
-## Available Scripts
+เป็น Single Page App เขียนด้วย React, Javascript โดยมี App.js เป็นตัวหลัก และเชื่อมโยง Component จากโฟลเดอร์ Component โดยเมนูทุกอย่าง จะอยู่ในไฟล์ App.js ทั้งหมด เนื่องจากตอนนั้นยังทำการ Handle Component จาก Children มายัง Parent ไม่เป็น Stack/Dependencies ทั้งหมดในส่วนนี้
 
-In the project directory, you can run:
+- React
+- Axios
+- Lodash
+- Socket.io Client
+- Bulma (CSS)
 
-### `npm start`
+ทดลองรัน Frontend ได้ แต่อาจจะ เชื่อมต่อ Server ทั้งหมดไม่ได้
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+    npm install
+    npm start
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+## Interface
 
-### `npm test`
+![ภาพตัวอย่างหน้าตาแอพพลิเคชั่น](Frontend.png)
+การทำงานคือ ผู้ใช้จะเข้าไปเลือกคณะ หรือ กลุ่มวิชาที่ต้องการ จากนั้นรายวิชาจะขึ้นมาในวิชาที่ค้นหาได้ ผู้ใช้งานทำการเพิ่ม หรือ ลดวิชาจาก List ในการลงทะเบียน ระบบจำนับจำนวนวิชา เมื่อผู้ใช้ต้องการจะส่งแบบฟอร์มการลงทะเบียน ผู้ใช้จะใส่รหัสนักศึกษา และกดลงทะเบียน
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Searching
 
-### `npm run build`
+การค้นหาอยู่ในไฟล์ `SubjectSearch.js` [SubjectSearch.js](Component/SubjectSearch.js) ซึ่งในส่วนของฟอร์ม จะใช้หลักการใส่ Atrribute `onChange={}` เพื่อเรียกค่าของฟอร์มไปเปลี่ยนค่าของ State ในทุกครั้งที่พิมพ์ ตามหลักของ React และจากนั้นโดยเมื่อฟอร์มส่งไปแล้ว(onSubmit) จะไปนำข้อมูลมาจาก REST API Server ผ่านฟังก์ชัน `onSubmitSearcjFrom`
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### ฟังก์ชัน onSubmitSearchForm
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+มีตัวแปล `baseURL` ไว้สำหรับเก็บ URL เบื้องตันของของ Server จากนั้นจะส่ง `GET` Request โดยนำชื่อคณะที่จะ Search หาวิชา มาต่อท้าย ดัง ก่อนที่จะใช้ Axios เป็นตัวยิง GET Request แล้วนำผลที่ได้จาก request มา `setState` ดังนี้
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+    let url = baseUrl + this.state.searchFaculty
 
-### `npm run eject`
+    Axios.get(url).then(valueRespond => {
+        this.setState({ subject: valueRespond.data })
+    })
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+นอกจากนั้น ในฟังก์ชันนี้ จะมีการส่งข้อมูลไป Render ตารางรายวิชา โดยใช้ฟังก์ชัน `renderSubject()` ก่อนจะมาเปลี่ยน state ของ table
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+     let table = this.renderSubject(this.state.subject, 1)
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### ฟังก์ชัน renderSubject()
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+มีพารามิเตอร์ 2 ตัวคือ State กับ Phase State คือข้อมูลของตาราง ส่วน Phase คือ ตัวเลขที่ใช้กำกับกระบวนการ โดย 1 แทนการเพิ่ม (default) ส่วน 2 จะแทนการลบ (ตอนนั้นไม่เข้าใจเหมือนกันว่าทำไมไม่ใช้ Boolean) นำมาเรียงตาม Subject ID และ นำมา Map ลงไปที่ Table
 
-## Learn More
+    renderSubject = (group, phase) => {
+        let sortGroup = _.sortBy(group, "SubjectID")
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+        let displayTable = _.map(sortGroup, subjectinfo => {
+            return(<table>
+            ...
+            </table>)
+        }
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+ในส่วนของ HTML Element ในฟังก์ชันนี้ จะมีปุ่ม โดยปุ่มจะเปลี่ยนเพิ่ม / ลบ โดยอัตโนมัติ
 
-### Code Splitting
+        <button className={phase == 1 ? "button is-primary" : "button is-danger"}
+            onClick={() => this.addOrRemoveForRegister(subjectinfo, phase)}>
+            {phase == 1 ? "เพิ่ม" : "ลบ"}
+        </button>
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+แล้วนำค่าไปเข้าฟังก์ชั่น `addOrRemoveForRegister()` ซึ่งมีการส่ง Phase ไปเช่นกัน
