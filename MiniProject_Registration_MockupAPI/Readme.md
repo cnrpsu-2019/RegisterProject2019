@@ -7,6 +7,10 @@
 - Open Main Express Program `npm start`
 - Open Pulling Queue System `npm run outqueue`
 
+## Document
+
+- อ่าน Document ได้ที่ [document.md](document.md)
+
 ## Problem Today
 
 - การทำงานทุกอย่างถูกต้อง ยกเว้น Socket.io ที่ไม่เป็นไปตามคาด คือ มันยังส่งตามคิวถูกต้อง แต่ทุกอย่างจะไป Response รวมกันที่ Session ล่าสุดเท่านั้น
