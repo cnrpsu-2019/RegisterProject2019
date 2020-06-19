@@ -83,3 +83,89 @@ Server ตัวนี้ เป็น Server ที่ทำหน้าที�
             extended: true
             })
         )
+
+## API Reference
+
+| URL Suffix         | Method | Description                                                 |
+| ------------------ | ------ | ----------------------------------------------------------- |
+| /all               | GET    | All Subject for all faculty                                 |
+| /:faculty          | GET    | Get Subject on that faculty                                 |
+| /:faculty/:subject | GET    | Find this subject on this faculty                           |
+| /result            | GET    | Find all registration result                                |
+| /result/:student   | GET    | Get registration result with selected student id            |
+| /register          | POST   | Request for Registration with student and array of subjects |
+
+## Registration
+
+หลังจากข้อมูลถูกส่งมาด้วย POST Method แล้ว จะถูกนำมาถอดเอา body ของ Request นั้น
+
+    app.post("/register/", (req, res) => {
+        let input = req.body
+        res.send("Register " + input.StudentID + "is come to process")
+
+และ push/emit ข้อมูลทั้ง StudentID และ รายวิชาที่ต้องการจะลงไปที่ Unprocessed Queue
+
+    pusherEventLoop.emit("push", input.StudentID, input.SubjectToEnroll)
+
+โดยกระบวนการของ `pusherEventLoop` เป็นการส่งข้อมูลเหล่านี้ เป็น JSON ไปที่ Socket ของ ZeroMQ
+
+    pusherEventLoop.on("push", (student, subject) => {
+
+    let dataObj = {
+        StudentID: student,
+        SubjectToEnroll: subject
+    }
+
+    zmqPushSock
+        .send(JSON.stringify(dataObj))
+        .catch(err => {
+            console.error(err)
+        })
+        .then(() => {
+            console.log("send to zmq complete")
+        })
+    })
+
+## Server Event On
+
+นอกจากนั้นหลังจากการเริ่มส่งไปที่ Unprocessed Queue จะต้องเริ่มการ**เปิด** Server Event ที่เราจะใช้ Socket.io ทำ โดยใช้ StudentID เป็น Session Key
+
+    io.on("connection", socket => {
+        sessionIO[input.StudentID] = socket
+        socket.join(input.StudentID)
+        ...
+    }
+
+## Recieve Registration Result
+
+ในส่วนนี้จะเป็นการจัดการกับ Processed Queue โดยการ Pulling ไปที่ Processed Queue ตัวอย่างในงานนี้คือ คิวที่รันอยู่ที่ `tcp://127.0.0.1:3090` เมื่อมี Object เข้ามาก็จะเปิดรับ เช็คข้อผิดพลาด และถอด Object มาเป็น JSON เข้าสู่การแจ้งผู้ใช้ให้ทราบต่อไป
+
+    async function pulling() {
+        zmqPullSock.connect("tcp://127.0.0.1:3090")
+        while (true) {
+            try {
+                const [mgs] = await zmqPullSock.receive()
+                let mgsInString = mgs.toString()
+                let mgsInObject = JSON.parse(mgsInString)
+
+
+                //Handling Out To Socket.io
+                if (mgsInObject != null) {
+                    connectToSocketIO(mgsInObject)
+                }
+            }
+            catch (err) {
+                console.error(err)
+            }
+        }
+    }
+
+## Sending Data Back with SocketIO
+
+ทำการส่งข้อมูลกลับไปด้วย Socket IO ที่เราได้สร้าง Socket ไว้เมื่อครู่แล้ว โดยใช้ StudentID เป็น Index เราจะเข้าถึง Socket นั้น และ emit ข้อมูลเข้าไปใน Key/Index นั้น โดยตั้งหัวข้อว่า `RegisterIO` จะได้เหมือนกันกับฝั่ง Client
+
+    function connectToSocketIO(result) {
+        if (sessionIO[result.StudentID] != null) {
+            sessionIO[result.StudentID].emit("RegisterIO", result)
+        }
+    }
