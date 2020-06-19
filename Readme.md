@@ -4,6 +4,7 @@ Subject Registration (Demo) Mini Project in 240-410 Internet Programing 1/2019 G
 
 Chayanon Sukhat, Theethawat Savastham and Yongyuth Ruttana
 
+ดาวน์โหลดสไลด์ [FinalSlide.pdf](FinalSlide.pdf)
 
 ## Tech Stack
 
@@ -20,6 +21,7 @@ Chayanon Sukhat, Theethawat Savastham and Yongyuth Ruttana
 ![Overall Architecture](./Architecture.png)
 
 # Directory
+
 Document ของแต่ละส่วน อยู่ในหน้าของส่วนนั้น ๆ (ใน Directory ของส่วนนั้น ๆ)
 
 - **FrontRegis** เก็บข้อมูลหน้า User Interface ของระบบ ทำงานบนพอร์ต 3000 ซึ่งเขียนด้วย React ทำการค้นหาข้อมูลการลงทะเบียน โดยการส่ง Get Request ไปยังเซิฟเวอร์ ทำการลงทะเบียน โดยการส่ง Post Request ไปยังเซิฟเวอร์ และรับข้อมูลผ่าน Server Event จาก Socket.IO
